@@ -3,8 +3,7 @@ import heapq
 
 class DecisionTreeLearner(object):
     def __init__(dataset, features, mode):
-        self.dTree = DTN.computeFirstNode(dataset, mode)
-        self.featureSets = features
+        self.dTree = DTN.computeFirstNode(dataset, features, mode)
         self.mode = mode
 
     def learn():
@@ -13,4 +12,9 @@ class DecisionTreeLearner(object):
         expandNum = 100
         for i in xrange(0, expandNum):
             expandTree = heapq.heappop(priorityQ)
-            Pnode, NPnode = expandTree.expand(self.featureSets 
+            Pnode, NPnode = expandTree.expand(self.mode)
+
+            heapq.heappush(priorityQ, Pnode)
+            heapq.heappush(priorityQ, NPnode)
+
+            yield self.dTree
