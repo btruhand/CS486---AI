@@ -1,9 +1,11 @@
+from __future__ import division
 from collections import Counter
 from math import log
+import sys
 
 class DecisionTreeNode(object):
-    CLASSALTATHEISM = 0
-    CLASSCOMPGRAPH = 1
+    CLASSALTATHEISM = 1
+    CLASSCOMPGRAPH = 2
 
     PROPORTIONMODE = 0
     AVGMODE = 1
@@ -11,26 +13,30 @@ class DecisionTreeNode(object):
     @staticmethod
     def classProportion(dataset):
         classIndex = len(dataset[0]) - 1
-        numClass = reduce(dataset, lambda x,y: 1 if x[classIndex] == DecisionTreeNode.CLASSALTHEISM else 0 + y, 0)
+        numClass = reduce(lambda x,y: (1 if y[classIndex] == DecisionTreeNode.CLASSALTATHEISM else 0) + x, dataset, 0)
 
         return numClass
 
     @staticmethod
     def calcInfoContent(dataset):
-        if dataset.length == 0:
+        if len(dataset) == 0:
             # dataset is empty, maximum entropy
             return 1
 
         # calculate information content (number of bits it takes to represent the
-        # data set, we will use the maximum likelihood for the probability
+        # data set), we will use the maximum likelihood for the probability
         numClass = DecisionTreeNode.classProportion(dataset)
-        
+       
         numDataPoints = len(dataset)
         # logarithm base 2
-        return  (-numClass * log(numClass / numDataPoints, 2) -\
-                   (numDataPoints - numClass) * log(class2 / numDataPoints, 2)) / numDataPoints
+        
+        proportionAtheism = numClass / numDataPoints
+        proportionGraphics = (numDataPoints - numClass) / numDataPoints
 
-
+        calcAtheism = 0 if proportionAtheism == 0 else (-proportionAtheism * log(proportionAtheism, 2))
+        calcGraphics = 0 if proportionGraphics == 0 else (-proportionGraphics * log(proportionGraphics, 2))
+        return  calcAtheism + calcGraphics
+                   
     # compute the splits on a dataset and a feature
     # and the resulting info content of the splits
 
@@ -41,10 +47,10 @@ class DecisionTreeNode(object):
     # infoContent2 - info content for split2
     @staticmethod
     def computeSplitsAndIC(dataset, feature):
-        # get all the data points that don't have the feature present
-        split1 = filter(dataset, lambda data: data[feature] == 1)
         # get all the data points that have the feature present
-        split2 = filter(dataset, lambda data: data[feature] == 0)
+        split1 = filter(lambda data: data[feature] == 1, dataset)
+        # get all the data points that don't have the feature present
+        split2 = filter(lambda data: data[feature] == 0, dataset)
         infoContent1 = DecisionTreeNode.calcInfoContent(split1)
         infoContent2 = DecisionTreeNode.calcInfoContent(split2)
 
@@ -54,8 +60,11 @@ class DecisionTreeNode(object):
     def computeIESplit(PData, NPData, IEP, IENP, mode):
         if mode == DecisionTreeNode.PROPORTIONMODE:
             numPData = len(PData)
-            numNPData = len(NPData)
-            return (numPData * IEP + numNPData * IENP) / (numPData + numNPData)
+            numNPData = len(NPData) 
+
+            IE1 = (numPData / (numPData + numNPData)) * IEP
+            IE2 = (numNPData / (numPData + numNPData)) * IENP
+            return IE1 + IE2
         # else
         return (IEP + IENP) / 2
 
@@ -72,18 +81,17 @@ class DecisionTreeNode(object):
 
             IEsplit = DecisionTreeNode.computeIESplit(split1, split2, IE1, IE2, mode)
 
-            infoGain = infoContent - infoGain
+            infoGain = infoContent - IEsplit
             
             if infoGain >= maxInfoGain:
                 maxInfoGain = infoGain
                 bestFeature = feature
 
-        return DecisionTreeNode(None, data, bestFeature, maxInfoGain, featureSet)
+        return DecisionTreeNode(dataset, bestFeature, maxInfoGain, featureSet, 0)
 
     # compute the best feature and their respective info gain
     # for each value of the feature of this node, essentially expanding
     # the node, return the expanded nodes
-
     # return:
     # PFeatureNode - the node that is reached when feature is present
     # NPFeatureNode - the node that is reached when feature is not present
@@ -95,18 +103,24 @@ class DecisionTreeNode(object):
         bestFeatureNP = None
         
         split1, split2, infoContent1, infoContent2 = \
-                DecisionTreeNode.computeSplitAndIC(self.dataset, self.feature)
+                DecisionTreeNode.computeSplitsAndIC(self.dataset, self.feature)
         
-        for feature in self.featureSets:
+        for feature in self.featureSet:
             for presence in (0,1):
                 if presence == 1:
+                    # check if split is empty if so skip
+                    if not split1:
+                        continue
                     IE = infoContent1
                     splitFeatureP, splitFeatureNP, IE1, IE2 = \
-                            DecisionTreeNode.computeSplitAndIC(split1, feature)
+                            DecisionTreeNode.computeSplitsAndIC(split1, feature)
                 else:
+                    # same case here
+                    if not split2:
+                        continue
                     IE = infoContent2
                     splitFeatureP, splitFeatureNP, IE1, IE2 = \
-                            DecisionTreeNode.computeSplitAndIC(split2, feature)
+                            DecisionTreeNode.computeSplitsAndIC(split2, feature)
 
                 IEsplit = DecisionTreeNode.computeIESplit(splitFeatureP, splitFeatureNP, IE1, IE2, mode)
 
@@ -120,8 +134,8 @@ class DecisionTreeNode(object):
                         maxInfoGainNP = infoGain
                         bestFeatureNP = feature
 
-        self.PFeatureNode = DecisionTree(self, split1, bestFeatureP, maxInfoGainP, self.featureSet)
-        self.NPFeatureNode = DecisionTree(self, split2, bestFeatureNP, maxInfoGainNP, self.featureSet)
+        self.PFeatureNode = DecisionTreeNode(split1, bestFeatureP, maxInfoGainP, self.featureSet, self.depth + 1)
+        self.NPFeatureNode = DecisionTreeNode(split2, bestFeatureNP, maxInfoGainNP, self.featureSet, self.depth + 1)
         
         # return the decision tree nodes corresponding to when the feature at this
         # node is present and when the feature is not present
@@ -131,15 +145,18 @@ class DecisionTreeNode(object):
     def predict(leafNode, document):
         while True:
             featureAtNode = leafNode.feature
-            if document[leafNode.feature] == 1 and leafNode.PFeatureNode:
+            if not featureAtNode:
+                # if there was no feature to split on then we break
+                break
+
+            if document[featureAtNode] == 1 and leafNode.PFeatureNode:
                 # if feature is present in document and there is a correspoding presence node
                 leafNode = leafNode.PFeatureNode
-            elif document[leafNode.feature] == 0 and leafNode.NPFeatureNode:
+            elif document[featureAtNode] == 0 and leafNode.NPFeatureNode:
                 leafNode = leafNode.NPFeatureNode
             else:
                 # none of the conditions above are satisfied
                 break
-
         return leafNode.pointEstimate
 
 
@@ -149,19 +166,44 @@ class DecisionTreeNode(object):
     # selfFeature - the feature that is being used to split at this node
     # bestFeatureInfoGain - the info gain of the best feature to split on at this node
     # featureSet - the features that this node is to work with including the feature of this node itself
-    def __init__(self, dataset, selfFeature, bestFeatureInfoGain, featureSet):
+    # depth - for printing purposes
+    def __init__(self, dataset, selfFeature, bestFeatureInfoGain, featureSet, depth):
         self.dataset = dataset
         self.feature = selfFeature
         self.bestFeatureInfoGain = bestFeatureInfoGain
         # remove the own feature from the feature set
-        self.featureSet = featureSet.copy().remove(self.feature)
+        self.featureSet = featureSet.copy()
+        if self.feature:
+            self.featureSet.remove(self.feature)
         # the decision tree node when the feature (selfFeature) is present
         self.PFeatureNode = None
         # the decision tree node when the feature (selfFeature) is not present
-        self.NPFatureNode = None
+        self.NPFeatureNode = None
         # get the majority class of this node
-        self.pointEstimate = Counter(dataset).most_common(1)[0][1]
+        numAtheism = 0
+        numGraphics = 0
+        for datapoint in dataset:
+            if datapoint[-1] == DecisionTreeNode.CLASSALTATHEISM:
+                numAtheism+= 1
+            else:
+                numGraphics+= 1
+        self.pointEstimate = DecisionTreeNode.CLASSALTATHEISM if \
+                                numAtheism > numGraphics else DecisionTreeNode.CLASSCOMPGRAPH
 
+        self.depth = depth
+
+    def printSelf(self, wordsSet):
+        for i in xrange(0, self.depth):
+            sys.stdout.write(' ')
+        print 'Feature:', wordsSet[self.feature], 'Information Gain:', self.bestFeatureInfoGain
+        for i in xrange(0, self.depth + 3):
+            sys.stdout.write(' ')
+        print '|________ Present child node feature:', None if not self.PFeatureNode else wordsSet[self.PFeatureNode.feature],\
+                    'PointEstimate:', None if not self.PFeatureNode else self.PFeatureNode.pointEstimate
+        for i in xrange(0, self.depth + 3):
+            sys.stdout.write(' ')
+        print '|________ Not present child node feature:', None if not self.NPFeatureNode else wordsSet[self.NPFeatureNode.feature],\
+                    'PointEstimate:', None if not self.NPFeatureNode else self.NPFeatureNode.pointEstimate
 
     # comparison method, we reverse the results in order so
     # we can sort the nodes in the form of a max heap
@@ -171,4 +213,4 @@ class DecisionTreeNode(object):
         elif self.bestFeatureInfoGain == other.bestFeatureInfoGain:
             return 0
         else:
-            return 1
+            return -1

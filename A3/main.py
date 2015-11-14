@@ -1,3 +1,4 @@
+from __future__ import division
 from decisionTreeNode import DecisionTreeNode as DTN
 from decisionTreeLearner import DecisionTreeLearner as DTL
 from sets import Set
@@ -20,7 +21,6 @@ def createSparseMatrix(dataFile, labelFile, numFeatures):
 
             # 0 indexing remember while the ID and features are 1 indexing
             # indicate presence of word/feature
-            print len(sparseMatrix), fileID, featureNum
             sparseMatrix[fileID-1][featureNum-1] = 1
     
     with open('trainLabel.txt', 'r') as f:
@@ -32,23 +32,34 @@ def createSparseMatrix(dataFile, labelFile, numFeatures):
     return sparseMatrix
 
 # returns the number of predictions that are correct
-def calculatePredictions(learnTreeGenerator, testDocs):
+def calculatePredictions(learnTreeGenerator, docs1, docs2, predictionRatio1, predictionRatio2):
+    numDocuments1 = len(docs1)
+    numDocuments2 = len(docs2)
     for learnTree in learnTreeGenerator:
-        numCorrectPrediction = 0
-        for testDoc in testMatrix:
-            prediction = DTN.predict(learnTree, testDoc)
-            if prediction == testDoc[-1]:
+        numCorrectPredictionDocs1 = 0
+        numCorrectPredictionDocs2 = 0
+        for doc in docs1:
+            prediction = DTN.predict(learnTree, doc)
+            if prediction == doc[-1]:
                 # if the prediction was correct
-                numCorrectPrediction+= 1
+                numCorrectPredictionDocs1+= 1
         
-        yield numCorrectPrediction
+        for doc in docs2:
+            prediction = DTN.predict(learnTree, doc)
+            if prediction == doc[-1]:
+                numCorrectPredictionDocs2+= 1
+        
+        predictionRatio1.append(numCorrectPredictionDocs1/numDocuments1 * 100)
+        predictionRatio2.append(numCorrectPredictionDocs2/numDocuments2 * 100)
 
 def main():
     numFeatures = 0
-    featureSets = Set([])
+    featuresSet = Set([])
+    wordsSet = []
     with open('words.txt', 'r') as f:
         for line in f:
-            featureSets.add(numFeatures)
+            featuresSet.add(numFeatures)
+            wordsSet.append(line.rstrip())
             numFeatures+= 1
 
     trainingMatrix = createSparseMatrix('trainData.txt', 'trainLabel.txt', numFeatures)
@@ -56,30 +67,35 @@ def main():
     numOfTrainingDocs = len(trainingMatrix)
     numOfTestDocs = len(testMatrix)
 
-    learnerProportion = DTL(trainingMatrix, featureSets, DTN.PROPORTION)
-    learnerAvg = DTL(trainingMatrix, featureSets, DTN.AVG)
+    learnerProportion = DTL(trainingMatrix, featuresSet, DTN.PROPORTIONMODE)
+    learnerAvg = DTL(trainingMatrix, featuresSet, DTN.AVGMODE)
 
-    proportionLearning = learnerProportion.learn()
-    #avgLearning = learnerAvg.learn()
+    proportionLearning = learnerProportion.learn(wordsSet)
+    avgLearning = learnerAvg.learn(wordsSet)
 
     # percentage of correct predictions for proportion mode decision tree
     # as the number of nodes increases/as the tree gets expanded
-    correctPredictionsProportion = []
+    correctPredictionsProportionTest = []
+    correctPredictionsProportionTrain = []
 
     # percentage of correct predictions for avg mode decision tree
     # as the number of nodes increases/as the tree gets expanded
-    correctPredictionsAvg = []
+    correctPredictionsAvgTest = []
+    correctPredictionsAvgTrain = []
 
-    proportionPredictionGen = calculatePredictions(proportionLearning, testMatrix)
-    for corPrediction in proportionPredictionGen:
-        correctPredictionsProportion.push((corPrediction / numOfTestDocs) * 100)
+    calculatePredictions(proportionLearning, testMatrix, trainingMatrix, \
+                            correctPredictionsProportionTest, correctPredictionsProportionTrain)
+    calculatePredictions(avgLearning, testMatrix, trainingMatrix, \
+                            correctPredictionsAvgTest, correctPredictionsAvgTrain)
+'''
+    with open('q1predictionGraphProportion.txt','w') as f:
+        f.write('{!s:10}{!s:20}{!s}\r\n'.format('expand #', 'testing accuracy', 'training accuracy'))
+        for i in xrange(0, len(correctPredictionsProportionTest)):
+            f.write('{:<10}{:<20.3f}{:<.3f}\r\n'.format(i, correctPredictionsProportionTest[i], correctPredictionsProportionTrain[i]))
 
-    print correctPredictionsAvg
-
-    '''
-    avgPredictionGen = calculatePredictions(avgLearning, testMatrix)
-    for corPrediction in proportionPredictionGen:
-        correctPredictionsAvg.push((corPrediction / numOfTestDocs) * 100)
-    '''
-
+    with open('q1predictiongraphAvg.txt','w') as f:
+        f.write('{!s:10}{!s:20}{!s}\r\n'.format('expand #', 'testing accuracy', 'training accuracy'))
+        for i in xrange(0, len(correctPredictionsAvgTest)):
+            f.write('{:<10}{:<20.3f}{:<.3f}\r\n'.format(i, correctPredictionsAvgTest[i], correctPredictionsAvgTrain[i]))
+'''
 main()

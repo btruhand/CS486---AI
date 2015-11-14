@@ -1,0 +1,65 @@
+Weighted Information Gain
+=========================
+Feature: writes Information Gain: 0.214992437297
+   |________ Present child node feature: graphics PointEstimate: 1
+   |________ Not present child node feature: god PointEstimate: 2
+ Feature: graphics Information Gain: 0.118888826771
+    |________ Present child node feature: itti PointEstimate: 2
+    |________ Not present child node feature: image PointEstimate: 1
+ Feature: god Information Gain: 0.109215568062
+    |________ Present child node feature: use PointEstimate: 1
+    |________ Not present child node feature: that PointEstimate: 2
+  Feature: use Information Gain: 0.212290066617
+     |________ Present child node feature: will PointEstimate: 2
+     |________ Not present child node feature: itti PointEstimate: 1
+   Feature: will Information Gain: 1.0
+      |________ Present child node feature: itti PointEstimate: 1
+      |________ Not present child node feature: itti PointEstimate: 2
+  Feature: image Information Gain: 0.085767875642
+     |________ Present child node feature: itti PointEstimate: 2
+     |________ Not present child node feature: that PointEstimate: 1
+   Feature: that Information Gain: 0.0864686295328
+      |________ Present child node feature: program PointEstimate: 1
+      |________ Not present child node feature: keith PointEstimate: 1
+    Feature: keith Information Gain: 0.108338840478
+       |________ Present child node feature: itti PointEstimate: 1
+       |________ Not present child node feature: god PointEstimate: 2
+     Feature: god Information Gain: 0.148815931386
+        |________ Present child node feature: itti PointEstimate: 1
+        |________ Not present child node feature: who PointEstimate: 2
+      Feature: who Information Gain: 0.106888216292
+         |________ Present child node feature: disk PointEstimate: 1
+         |________ Not present child node feature: have PointEstimate: 2
+
+Average Information Gain
+========================
+Feature: atheism Information Gain: 0.500694472522
+   |________ Present child node feature: titles PointEstimate: 1
+   |________ Not present child node feature: evidence PointEstimate: 2
+ Feature: evidence Information Gain: 0.497544401214
+    |________ Present child node feature: mix PointEstimate: 1
+    |________ Not present child node feature: moral PointEstimate: 2
+  Feature: moral Information Gain: 0.493435672627
+     |________ Present child node feature: analyze PointEstimate: 1
+     |________ Not present child node feature: islam PointEstimate: 2
+   Feature: islam Information Gain: 0.488204506471
+      |________ Present child node feature: hussein PointEstimate: 1
+      |________ Not present child node feature: bible PointEstimate: 2
+    Feature: bible Information Gain: 0.483126375767
+       |________ Present child node feature: maurice PointEstimate: 1
+       |________ Not present child node feature: wpd PointEstimate: 2
+     Feature: wpd Information Gain: 0.477652471309
+        |________ Present child node feature: map PointEstimate: 1
+        |________ Not present child node feature: benedikt PointEstimate: 2
+      Feature: benedikt Information Gain: 0.470132424676
+         |________ Present child node feature: nicely PointEstimate: 1
+         |________ Not present child node feature: gap PointEstimate: 2
+       Feature: gap Information Gain: 0.463401826616
+          |________ Present child node feature: picked PointEstimate: 1
+          |________ Not present child node feature: religion PointEstimate: 2
+        Feature: religion Information Gain: 0.456927295643
+           |________ Present child node feature: chapter PointEstimate: 1
+           |________ Not present child node feature: mathew PointEstimate: 2
+         Feature: mathew Information Gain: 0.450054148639
+            |________ Present child node feature: film PointEstimate: 1
+            |________ Not present child node feature: tek PointEstimate: 2
