@@ -1,0 +1,61 @@
+Result of restricting factors on evidence ['FP', 't'], ['CRP', 't'], ['IP', 'f'], ['Trav', 't'] 
+-------------------------------------------------- 
+MappedVal 
+0.05      
+ 
+MappedVal Fraud     
+0.01      t         
+0.99      f         
+ 
+MappedVal Fraud     
+0.9       t         
+0.9       f         
+ 
+MappedVal Fraud     OC        
+0.98      t         t         
+0.989     t         f         
+0.99      f         t         
+0.999     f         f         
+ 
+MappedVal OC        
+0.6       t         
+0.4       f         
+ 
+MappedVal OC        
+0.1       t         
+0.001     f         
+ 
+-------------------------------------------------- 
+Summing over OC 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on OC 
+------------------------------ 
+MappedVal Fraud     OC        
+0.0588    t         t         
+0.000396  t         f         
+0.0594    f         t         
+0.0004    f         f         
+ 
+------------------------------ 
+Summing out variable OC 
+------------------------------ 
+MappedVal Fraud     
+0.059196  t         
+0.0598    f         
+ 
+------------------------------ 
+Result of multiplying factors with query variables: ['Fraud'] 
+--------------------------------------------- 
+MappedVal Fraud     
+2.66e-05  t         
+0.00267   f         
+ 
+--------------------------------------------- 
+Normalized result 
+------------------------------ 
+MappedVal Fraud     
+0.00986   t         
+0.99      f         
+ 
+------------------------------ 

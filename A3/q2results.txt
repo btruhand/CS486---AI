@@ -1,0 +1,11 @@
+Training Accuracy: 92.837  Testing Accuracy: 88.967
+Word: graphics Discrimination: 6.38374874578
+Word: atheism Discrimination: 5.73389435561
+Word: religion Discrimination: 5.66678015975
+Word: moral Discrimination: 5.55986495583
+Word: keith Discrimination: 5.55986495583
+Word: evidence Discrimination: 5.55986495583
+Word: atheists Discrimination: 5.52239025041
+Word: god Discrimination: 5.45768456103
+Word: bible Discrimination: 5.40374575392
+Word: christian Discrimination: 5.36192557822

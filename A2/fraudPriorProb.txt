@@ -1,0 +1,45 @@
+Result of restricting factors on evidence nothing 
+-------------------------------------------------- 
+MappedVal Fraud     Trav      
+0.01      t         t         
+0.004     t         f         
+0.99      f         t         
+0.996     f         f         
+ 
+MappedVal Trav      
+0.05      t         
+0.95      f         
+ 
+-------------------------------------------------- 
+Summing over Trav 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on Trav 
+------------------------------ 
+MappedVal Fraud     Trav      
+0.0005    t         t         
+0.0038    t         f         
+0.0495    f         t         
+0.946     f         f         
+ 
+------------------------------ 
+Summing out variable Trav 
+------------------------------ 
+MappedVal Fraud     
+0.0043    t         
+0.9955    f         
+ 
+------------------------------ 
+Result of multiplying factors with query variables: ['Fraud'] 
+--------------------------------------------- 
+MappedVal Fraud     
+0.0043    t         
+0.9955    f         
+ 
+--------------------------------------------- 
+Normalized result 
+------------------------------ 
+MappedVal Fraud     
+0.0043    t         
+0.996     f         
+

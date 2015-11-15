@@ -71,7 +71,7 @@ class DecisionTreeNode(object):
     
     @staticmethod
     def computeFirstNode(dataset, featureSet, mode):
-        maxInfoGain = 0
+        maxInfoGain = None
         bestFeature = None
         infoContent = DecisionTreeNode.calcInfoContent(dataset)
 
@@ -83,7 +83,7 @@ class DecisionTreeNode(object):
 
             infoGain = infoContent - IEsplit
             
-            if infoGain >= maxInfoGain:
+            if maxInfoGain is None or infoGain > maxInfoGain:
                 maxInfoGain = infoGain
                 bestFeature = feature
 
@@ -96,9 +96,8 @@ class DecisionTreeNode(object):
     # PFeatureNode - the node that is reached when feature is present
     # NPFeatureNode - the node that is reached when feature is not present
     def expand(self, mode):
-        maxInfoGainP = 0
-        maxInfoGainNP = 0
-        
+        maxInfoGainP = None
+        maxInfoGainNP = None
         bestFeatureP = None
         bestFeatureNP = None
         
@@ -126,11 +125,11 @@ class DecisionTreeNode(object):
 
                 infoGain = IE - IEsplit
                 if presence == 1:
-                    if infoGain >= maxInfoGainP:
+                    if maxInfoGainP is None or infoGain > maxInfoGainP:
                         maxInfoGainP = infoGain
                         bestFeatureP = feature
                 else:
-                    if infoGain >= maxInfoGainNP:
+                    if maxInfoGainNP is None or infoGain > maxInfoGainNP:
                         maxInfoGainNP = infoGain
                         bestFeatureNP = feature
 
@@ -195,15 +194,21 @@ class DecisionTreeNode(object):
     def printSelf(self, wordsSet):
         for i in xrange(0, self.depth):
             sys.stdout.write(' ')
-        print 'Feature:', wordsSet[self.feature], 'Information Gain:', self.bestFeatureInfoGain
+        print 'Feature: {} Information Gain: {:.3f}\r'.format(wordsSet[self.feature], self.bestFeatureInfoGain)
         for i in xrange(0, self.depth + 3):
             sys.stdout.write(' ')
-        print '|________ Present child node feature:', None if not self.PFeatureNode else wordsSet[self.PFeatureNode.feature],\
-                    'PointEstimate:', None if not self.PFeatureNode else self.PFeatureNode.pointEstimate
+        
+        presence = True if self.PFeatureNode.feature is not None else False
+        notPresence = True if self.NPFeatureNode.feature is not None else False
+        
+        print '|________ Present child node feature: {!s} PointEstimate: {} IG: {:}\r'.format(\
+                None if not presence else wordsSet[self.PFeatureNode.feature], \
+                self.PFeatureNode.pointEstimate, self.PFeatureNode.bestFeatureInfoGain)
         for i in xrange(0, self.depth + 3):
             sys.stdout.write(' ')
-        print '|________ Not present child node feature:', None if not self.NPFeatureNode else wordsSet[self.NPFeatureNode.feature],\
-                    'PointEstimate:', None if not self.NPFeatureNode else self.NPFeatureNode.pointEstimate
+        print '|________ Not present child node feature: {!s} PointEstimate: {} IG: {:}\r'.format(\
+                None if not notPresence else wordsSet[self.NPFeatureNode.feature], \
+                self.NPFeatureNode.pointEstimate, self.NPFeatureNode.bestFeatureInfoGain)
 
     # comparison method, we reverse the results in order so
     # we can sort the nodes in the form of a max heap

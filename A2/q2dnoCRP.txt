@@ -1,0 +1,141 @@
+Result of restricting factors on evidence ['IP', 't'] 
+-------------------------------------------------- 
+MappedVal Trav      
+0.05      t         
+0.95      f         
+ 
+MappedVal Fraud     Trav      
+0.01      t         t         
+0.004     t         f         
+0.99      f         t         
+0.996     f         f         
+ 
+MappedVal FP        Fraud     Trav      
+0.9       t         t         t         
+0.1       t         t         f         
+0.9       t         f         t         
+0.01      t         f         f         
+0.1       f         t         t         
+0.9       f         t         f         
+0.1       f         f         t         
+0.99      f         f         f         
+ 
+MappedVal Fraud     OC        
+0.02      t         t         
+0.011     t         f         
+0.01      f         t         
+0.001     f         f         
+ 
+MappedVal OC        
+0.6       t         
+0.4       f         
+ 
+MappedVal CRP       OC        
+0.1       t         t         
+0.001     t         f         
+0.9       f         t         
+0.999     f         f         
+ 
+-------------------------------------------------- 
+Summing over Trav 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on Trav 
+------------------------------ 
+MappedVal FP        Fraud     Trav      
+0.00045   t         t         t         
+5e-05     f         t         t         
+0.0446    t         f         t         
+0.00495   f         f         t         
+0.00038   t         t         f         
+0.00342   f         t         f         
+0.00946   t         f         f         
+0.937     f         f         f         
+ 
+------------------------------ 
+Summing out variable Trav 
+------------------------------ 
+MappedVal FP        Fraud     
+0.00083   t         t         
+0.00347   f         t         
+0.05406   t         f         
+0.94195   f         f         
+ 
+------------------------------ 
+Summing over FP 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on FP 
+------------------------------ 
+MappedVal FP        Fraud     
+0.00083   t         t         
+0.00347   f         t         
+0.05406   t         f         
+0.94195   f         f         
+ 
+------------------------------ 
+Summing out variable FP 
+------------------------------ 
+MappedVal Fraud     
+0.0043    t         
+0.99601   f         
+ 
+------------------------------ 
+Summing over OC 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on OC 
+------------------------------ 
+MappedVal CRP       Fraud     OC        
+0.0012    t         t         t         
+0.0108    f         t         t         
+4.4e-06   t         t         f         
+0.0044    f         t         f         
+0.0006    t         f         t         
+0.0054    f         f         t         
+4e-07     t         f         f         
+0.0004    f         f         f         
+ 
+------------------------------ 
+Summing out variable OC 
+------------------------------ 
+MappedVal CRP       Fraud     
+0.0012044 t         t         
+0.0152    f         t         
+0.0006004 t         f         
+0.0058    f         f         
+ 
+------------------------------ 
+Summing over CRP 
+------------------------------ 
+------------------------------ 
+Intermediate product factor on CRP 
+------------------------------ 
+MappedVal CRP       Fraud     
+0.0012044 t         t         
+0.0152    f         t         
+0.0006004 t         f         
+0.0058    f         f         
+ 
+------------------------------ 
+Summing out variable CRP 
+------------------------------ 
+MappedVal Fraud     
+0.0164044 t         
+0.0064004 f         
+ 
+------------------------------ 
+Result of multiplying factors with query variables: ['Fraud'] 
+--------------------------------------------- 
+MappedVal Fraud     
+7.05e-05  t         
+0.00637   f         
+ 
+--------------------------------------------- 
+Normalized result 
+------------------------------ 
+MappedVal Fraud     
+0.0109    t         
+0.989     f         
+ 
+------------------------------ 

@@ -1,0 +1,92 @@
+Factor f0(C)
+MappedVal C         
+0.32      t         
+0.68      f         
+
+Factor f1(M)
+MappedVal M         
+0.08      t         
+0.92      f         
+
+Factor f2(TB,M,C)
+MappedVal M         C         TB        
+0.61      t         t         t         
+0.39      t         t         f         
+0.52      t         f         t         
+0.48      t         f         f         
+0.78      f         t         t         
+0.22      f         t         f         
+0.044     f         f         t         
+0.956     f         f         f         
+
+Factor f3(R,TB)
+MappedVal R         TB        
+0.98      t         t         
+0.02      f         t         
+0.01      t         f         
+0.99      f         f         
+
+Factor f4(D,R)
+MappedVal R         D         
+0.96      t         t         
+0.04      t         f         
+0.001     f         t         
+0.999     f         f         
+
+Restrict f4(D,R) on D=true -> f4(R)
+MappedVal R         
+0.96      t         
+0.001     f         
+
+Compute f5(R,TB)=f4(R)*f3(R,TB) (Product)
+MappedVal R         TB        
+0.941     t         t         
+2e-05     f         t         
+0.0096    t         f         
+0.00099   f         f         
+
+Compute f5'(TB)= sum of f5(R,TB) over R
+MappedVal TB        
+0.94102   t         
+0.01059   f         
+
+Compute f6(TB,M,C)=f2(TB,M,C)*f5'(TB) (Product)
+MappedVal M         C         TB        
+0.574     t         t         t         
+0.00413   t         t         f         
+0.489     t         f         t         
+0.00508   t         f         f         
+0.734     f         t         t         
+0.00233   f         t         f         
+0.0414    f         f         t         
+0.0101    f         f         f         
+
+Compute f6'(M,C)= sum of f6(TB,M,C) over TB
+MappedVal M         C         
+0.57813   t         t         
+0.49408   t         f         
+0.73633   f         t         
+0.0515    f         f         
+
+Compute f7(M,C)=f1(M)*f6'(M,C) (Product)
+MappedVal C         M         
+0.0463    t         t         
+0.0395    f         t         
+0.677     t         f         
+0.0474    f         f         
+
+Compute f7'(C)= sum of f7(M,C) over M
+MappedVal C         
+0.7233    t         
+0.0869    f         
+
+Compute f8(M,C)=f0(C)*f7'(C) (Product)
+MappedVal C         
+0.231     t         
+0.0591    f         
+
+Normalize f8(C)
+MappedVal C         
+0.796     t         
+0.204     f         
+
