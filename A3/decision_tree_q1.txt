@@ -30,7 +30,6 @@ Feature: writes Information Gain: 0.215
       Feature: who Information Gain: 0.107
          |________ Present child node feature: the PointEstimate: 1 IG: 0.468995593589
          |________ Not present child node feature: have PointEstimate: 2 IG: 0.0828759886993
-
 Average Information Gain
 ==========================
 Feature: atheism Information Gain: 0.501

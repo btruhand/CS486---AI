@@ -10,16 +10,14 @@ class DecisionTreeLearner(object):
         priorityQ = [self.dTree]
 
         expandNum = 100
-        i = 0
-        while i < expandNum and priorityQ:
+        for i in xrange(0, expandNum):
             expandTree = heapq.heappop(priorityQ)
-            if not expandTree.bestFeatureInfoGain > 0:
-                # no need to expand
-                continue
             Pnode, NPnode = expandTree.expand(self.mode)
 
-            heapq.heappush(priorityQ, Pnode)
-            heapq.heappush(priorityQ, NPnode)
+            if Pnode and NPnode:
+                # if we actually expanded
+                heapq.heappush(priorityQ, Pnode)
+                heapq.heappush(priorityQ, NPnode)
 
             if wordsSet:
                 if i == 0:
@@ -32,5 +30,4 @@ class DecisionTreeLearner(object):
                 if i <= 9:
                     # print the tree
                     expandTree.printSelf(wordsSet)
-            i+= 1
             yield self.dTree

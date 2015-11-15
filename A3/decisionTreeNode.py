@@ -96,6 +96,10 @@ class DecisionTreeNode(object):
     # PFeatureNode - the node that is reached when feature is present
     # NPFeatureNode - the node that is reached when feature is not present
     def expand(self, mode):
+        if not self.bestFeatureInfoGain:
+            # 0 or no best feature
+            return (None,None)
+
         maxInfoGainP = None
         maxInfoGainNP = None
         bestFeatureP = None
