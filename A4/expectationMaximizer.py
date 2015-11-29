@@ -1,5 +1,4 @@
 from __future__ import division
-from math import log
 import random
 
 class ExpectationMaximizer(object):
@@ -72,31 +71,43 @@ class ExpectationMaximizer(object):
             if variable == 0:
                 for THTS in xrange(0, 2):
                     for DS in xrange(0, 3):
-                        random.seed(self.seed)
-                        randNum = random.uniform(0, self.delta)
-                        self.seed = randNum
-
-                        self.randomizedCPTs[variable][THTS][DS] = (self.CPTs[variable][THTS][DS] + randNum)/(1+2*randNum)
+						random.seed(self.seed)
+						randNum1 = random.uniform(0, self.delta)
+						# reset seed
+						self.seed = randNum1
+						randNum2 = random.uniform(0, self.delta)
+						self.seed = randNum2
+						
+						self.randomizedCPTs[variable][THTS][DS] = (self.CPTs[variable][THTS][DS] + randNum1)/(1 + randNum1 + randNum2)
             elif variable < 3:
                 for DS in xrange(0, 3):
-                    random.seed(self.seed)
-                    randNum = random.uniform(0, self.delta)
-                    self.seed = randNum
-
-                    self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum)/(1+2*randNum)
+					random.seed(self.seed)
+					randNum1 = random.uniform(0, self.delta)
+					self.seed = randNum1
+					randNum2 = random.uniform(0, self.delta)
+					
+					self.seed = randNum2
+					
+					self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2)
             elif variable == 3:
-                random.seed(self.seed)
-                randNum = random.uniform(0, self.delta)
-                self.seed = randNum
-
-                self.randomizedCPTs[variable][0] = (self.CPTs[variable][0] + randNum)/(1 + 2*randNum)
+				random.seed(self.seed)
+				randNum1 = random.uniform(0, self.delta)
+				self.seed = randNum1
+				randNum2 = random.uniform(0, self.delta)
+				self.seed = randNum2
+				
+				self.randomizedCPTs[variable][0] = (self.CPTs[variable][0] + randNum1)/(1 + randNum1 + randNum2)
             else:
                 for DS in xrange(0,2):
-                    random.seed(self.seed)
-                    randNum = random.uniform(0, self.delta)
-                    self.seed = randNum
-                    self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum)/(1 + 3*randNum)
+					random.seed(self.seed)
+					randNum1 = random.uniform(0, self.delta)
+					self.seed = randNum1
+					randNum2 = random.uniform(0, self.delta)
+					self.seed = randNum2
+					randNum3 = random.uniform(0, self.delta)
+					self.seed = randNum3
 
+					self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2 + randNum3)
     
     def changeDelta(self):
         self.delta+= ExpectationMaximizer.MAX_DELTA/self.numDeltas
