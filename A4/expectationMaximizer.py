@@ -49,8 +49,8 @@ class ExpectationMaximizer(object):
         # copy the template to store the
         # sum of the weights
         self.sumWeightsDSTHTS = \
-                [[0, 0],
-                 [0, 0, 0]]
+                [[0],
+                 [0, 0]]
 
         self.sumWeightsPresent = \
                 [[[0, 0, 0],\
@@ -115,7 +115,7 @@ class ExpectationMaximizer(object):
     def resetSumWeights(self):
         # reset sum weight tables
         for i in xrange(0, 2):
-            for j in xrange(0, 2 if i == 0 else 3):
+            for j in xrange(0, 1 if i == 0 else 2):
                 self.sumWeightsDSTHTS[i][j] = 0
         for i in xrange(0, 3):
             if i == 0:
@@ -184,22 +184,14 @@ class ExpectationMaximizer(object):
                     elif i == 3:
                         # 0th index indicates presence
                         # 1st index indicates non presence
-                        ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, 1-list_data[i])
+                        if list_data[i] == 1:
+                            ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, 0)
                     else:
-                        ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, DSyndrome)
+                        if DSyndrome == 0 or DSyndrome == 1:
+                            ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, DSyndrome)
 
                 sumOfAllWeights+= weight
 
-            if firstTrial:
-                firstTrial = False
-            elif sumOfAllWeights - likelihood <= 0.01:
-                # reset before breaking out
-                self.resetSumWeights()
-                # if change to likelihood is small enough
-                break
-
-            likelihood = sumOfAllWeights
-           
             for variable in xrange(0, len(self.randomizedCPTs)):
                 # Sloepnea
                 if variable == 0:
@@ -220,6 +212,16 @@ class ExpectationMaximizer(object):
                 else:
                     self.randomizedCPTs[variable][0] = self.sumWeightsDSTHTS[variable-3][0]/sumOfAllWeights
                     self.randomizedCPTs[variable][1] = self.sumWeightsDSTHTS[variable-3][1]/sumOfAllWeights
+
+            if firstTrial:
+                firstTrial = False
+            elif sumOfAllWeights - likelihood <= 0.01:
+                # reset before breaking out
+                self.resetSumWeights()
+                # if change to likelihood is small enough
+                break
+
+            likelihood = sumOfAllWeights
 
             # reset
             self.resetSumWeights()
@@ -260,7 +262,7 @@ class ExpectationMaximizer(object):
                 else:
                     noneLikelihood*= (self.randomizedCPTs[variable][0])
                     mildLikelihood*= (self.randomizedCPTs[variable][1])
-                    severeLikelihood*= ((1- self.randomizedCPTs[variable][0] - self.randomizedCPTs[variable][1]))
+                    severeLikelihood*= (1- self.randomizedCPTs[variable][0] - self.randomizedCPTs[variable][1])
 
             prediction = 0 if noneLikelihood >= mildLikelihood and noneLikelihood >= severeLikelihood else\
                          (1 if mildLikelihood >= noneLikelihood and mildLikelihood >= severeLikelihood else 2)
