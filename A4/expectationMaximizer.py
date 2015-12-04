@@ -2,7 +2,7 @@ from __future__ import division
 import random
 
 class ExpectationMaximizer(object):
-    MAX_DELTA = 4
+    MAX_DELTA = 25
     # numDeltas - how many different deltas we will use
     # trainData - the training set
     def __init__(self, numDeltas, trainData, seed):
@@ -11,21 +11,24 @@ class ExpectationMaximizer(object):
         self.seed = seed
 
         # CPTs table are for when the variable = True
-        # except for Dunetts Syndrome that has 3 possible values
+        # except for Dunetts Syndrome that has 3 possible values (reduced to 2)
         # In order:
-        # * Sloepne
-        # * Forienditis
+        # * Sloepnea:
+        #   row is THTS 0th row is no presence of THTS, and so on. column is DS
+        # * Foriennditis
         # * Degar Spots
         # * TRIMONO-HT/S
         # * Dunetts Syndrome
         self.CPTs =\
-                [[[0.01, 0.03, 0.03],\
-                  [0.05, 0.30, 0.20]],\
-                 [0.05, 0.6, 0.3],\
-                 [0.1, 0.25, 0.55],\
-                 [0.1],
+                [[[0.05, 0.45, 0.4],\
+                  [0.01, 0.03, 0.03]],\
+                 [0.05, 0.7, 0.3],\
+                 [0.1, 0.25, 0.6],\
+                 [0.1],\
                  [0.5, 0.25]]
         
+        self.data = trainData
+
         self.randomizedCPTs = [None] * len(self.CPTs)
         for var in xrange(0, len(self.CPTs)):
             if var == 0:
@@ -33,36 +36,67 @@ class ExpectationMaximizer(object):
             else:
                 self.randomizedCPTs[var] = list(self.CPTs[var])
 
-        # read the data and expand it if needed
-        self.expandedData = []
+        # sum of unnormalized weights (joint probabilities)
+        self.sumOfJP = 0
 
-        for data in trainData:
-            # Dunetts Syndrome data missing
-            if data[-1] == -1:
-                for i in xrange(0,3):
-                    copyData = list(data)
-                    copyData[-1] = i
-                    self.expandedData.append(copyData)
-            else:
-                self.expandedData.append(list(data))
+        # read the data and compute joint probability
+        # and likelihood
+        # entries are keyed by data point (string form)
+        # values is a list [joint probability of data point, likelihood of DS given data point]
+        self.JPandLikelihoodTable = {}
 
         # copy the template to store the
-        # sum of the weights
-        self.sumWeightsDSTHTS = \
-                [[0],
-                 [0, 0]]
+        # sum of the likelihoods
 
-        self.sumWeightsPresent = \
+        # contains the sum of all the likelihoods for:
+        # * Sloepnea on THTS = x, DS = y (this is over all Sloepnea)
+        # * Foriennditis on DS = x (this is over all Foriennditis)
+        # * Degar Spots on DS = x (this is over all Degar Spots)
+        # * THTS = x (this is over all THTS)
+        # * DS = x (this is over all DS)
+        self.sumAllLikelihood = \
                 [[[0, 0, 0],\
                   [0, 0, 0]],\
                  [0, 0, 0],\
-                 [0, 0, 0]]
+                 [0, 0, 0],\
+                 [0],\
+                 [0]]
 
-        self.sumWeightsNPresent = \
+        self.sumPresentLikelihood = \
                 [[[0, 0, 0],\
                   [0, 0, 0]],\
                  [0, 0, 0],\
-                 [0, 0, 0]]
+                 [0, 0, 0],
+                 [0],\
+                 [0,0]]
+
+        random.seed(self.seed)
+
+    def recomputeJPandLikelihoodTable(self):
+        for S in xrange(0,2):
+            for F in xrange(0,2):
+                for D in xrange(0,2):
+                    for THTS in xrange(0,2):
+                        sumJP = 0
+                        strForms = [None] * 3
+                        for DS in xrange(0,3):
+                            dataPoint = [S,F,D,THTS,DS]
+                            strForm = str(dataPoint)
+                            
+                            jointProbability = 1
+                            jointProbability*= self.randomizedCPTs[0][THTS][DS] if S == 1 else (1-self.randomizedCPTs[0][THTS][DS])
+                            jointProbability*= self.randomizedCPTs[1][DS] if F == 1 else (1-self.randomizedCPTs[1][DS])
+                            jointProbability*= self.randomizedCPTs[2][DS] if D == 1 else (1-self.randomizedCPTs[2][DS])
+                            jointProbability*= self.randomizedCPTs[3][0] if THTS == 1 else (1-self.randomizedCPTs[3][0])
+                            jointProbability*= self.randomizedCPTs[4][DS] if (DS == 0 or DS == 1) else\
+                                               (1-self.randomizedCPTs[4][0]-self.randomizedCPTs[4][1])
+
+                            strForms[DS] = strForm
+                            self.JPandLikelihoodTable[strForm] = [jointProbability, 0]
+                            sumJP+= jointProbability
+                        
+                        for strForm in strForms:
+                            self.JPandLikelihoodTable[strForm][1] = self.JPandLikelihoodTable[strForm][0]/sumJP
 
     # randomize the CPTs, acts as a reset too
     def randomizeCPTs(self):
@@ -71,157 +105,120 @@ class ExpectationMaximizer(object):
             if variable == 0:
                 for THTS in xrange(0, 2):
                     for DS in xrange(0, 3):
-						random.seed(self.seed)
-						randNum1 = random.uniform(0, self.delta)
-						# reset seed
-						self.seed = randNum1
-						randNum2 = random.uniform(0, self.delta)
-						self.seed = randNum2
-						
-						self.randomizedCPTs[variable][THTS][DS] = (self.CPTs[variable][THTS][DS] + randNum1)/(1 + randNum1 + randNum2)
+                        randNum1 = random.uniform(0, self.delta)
+                        randNum2 = random.uniform(0, self.delta)
+                        self.randomizedCPTs[variable][THTS][DS] = (self.CPTs[variable][THTS][DS] + randNum1)/(1 + randNum1 + randNum2)
             elif variable < 3:
                 for DS in xrange(0, 3):
-					random.seed(self.seed)
-					randNum1 = random.uniform(0, self.delta)
-					self.seed = randNum1
-					randNum2 = random.uniform(0, self.delta)
-					
-					self.seed = randNum2
-					
-					self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2)
+                    randNum1 = random.uniform(0, self.delta)
+                    randNum2 = random.uniform(0, self.delta)
+                    self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2)
             elif variable == 3:
-				random.seed(self.seed)
-				randNum1 = random.uniform(0, self.delta)
-				self.seed = randNum1
-				randNum2 = random.uniform(0, self.delta)
-				self.seed = randNum2
-				
-				self.randomizedCPTs[variable][0] = (self.CPTs[variable][0] + randNum1)/(1 + randNum1 + randNum2)
+                randNum1 = random.uniform(0, self.delta)
+                randNum2 = random.uniform(0, self.delta)
+                self.randomizedCPTs[variable][0] = (self.CPTs[variable][0] + randNum1)/(1 + randNum1 + randNum2)
             else:
                 for DS in xrange(0,2):
-					random.seed(self.seed)
-					randNum1 = random.uniform(0, self.delta)
-					self.seed = randNum1
-					randNum2 = random.uniform(0, self.delta)
-					self.seed = randNum2
-					randNum3 = random.uniform(0, self.delta)
-					self.seed = randNum3
-
-					self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2 + randNum3)
+                    randNum1 = random.uniform(0, self.delta)
+                    randNum2 = random.uniform(0, self.delta)
+                    randNum3 = random.uniform(0, self.delta)
+                    self.randomizedCPTs[variable][DS] = (self.CPTs[variable][DS] + randNum1)/(1 + randNum1 + randNum2 + randNum3)
     
     def changeDelta(self):
         self.delta+= ExpectationMaximizer.MAX_DELTA/self.numDeltas
 
     def resetSumWeights(self):
+        self.sumOfJP = 0
         # reset sum weight tables
-        for i in xrange(0, 2):
-            for j in xrange(0, 1 if i == 0 else 2):
-                self.sumWeightsDSTHTS[i][j] = 0
-        for i in xrange(0, 3):
-            if i == 0:
-                for j in xrange(0, 2):
-                    for k in xrange(0, 3):
-                        self.sumWeightsPresent[i][j][k] = 0
-                        self.sumWeightsNPresent[i][j][k] = 0
+        for var in xrange(0, 5):
+            if var == 0:
+                for THTS in xrange(0, 2):
+                    for DS in xrange(0, 3):
+                        self.sumAllLikelihood[var][THTS][DS] = 0
+                        self.sumPresentLikelihood[var][THTS][DS] = 0
             else:
-                for k in xrange(0, 3):
-                    self.sumWeightsPresent[i][k] = 0
-                    self.sumWeightsNPresent[i][k] = 0
+                for var2 in xrange(0, len(self.sumPresentLikelihood[var])):
+                    if var == 4:
+                        if var2 == 0:
+                            self.sumAllLikelihood[var][var2] = 0
+                    else:
+                        self.sumAllLikelihood[var][var2] = 0
+                    self.sumPresentLikelihood[var][var2] = 0
 
-    @staticmethod
-    def updateWeights(weightToUpdate, weight, index):
-        weightToUpdate[index]+= weight
+    def accumulateLikelihood(self, dataPoint, likelihoodVal):
+        S = dataPoint[0]
+        F = dataPoint[1]
+        D = dataPoint[2]
+        THTS = dataPoint[3]
+        DS = dataPoint[4]
+        
+        # sum up all likelihood values
+        self.sumAllLikelihood[0][THTS][DS]+= likelihoodVal
+        self.sumAllLikelihood[1][DS]+= likelihoodVal
+        self.sumAllLikelihood[2][DS]+= likelihoodVal
+        self.sumAllLikelihood[3][0]+= likelihoodVal
+        self.sumAllLikelihood[4][0]+= likelihoodVal
+
+        if S == 1:
+            self.sumPresentLikelihood[0][THTS][DS]+= likelihoodVal
+        if F == 1:
+            self.sumPresentLikelihood[1][DS]+= likelihoodVal
+        if D == 1:
+            self.sumPresentLikelihood[2][DS]+= likelihoodVal
+        if THTS == 1:
+            self.sumPresentLikelihood[3][0]+= likelihoodVal
+        if DS == 0 or DS == 1:
+            self.sumPresentLikelihood[4][DS]+= likelihoodVal
 
     def runEM(self):
-        firstTrial = True
         likelihood = None
 
         while True:
-            sumOfAllWeights = 0
-            for list_data in self.expandedData:
-                # either 0, 1 or 2
-                DSyndrome = list_data[-1]
-                weight = 1
-                for i in xrange(0, len(list_data)):
-                    # Sloepnea
-                    if i == 0:
-                        # based on the values of TRIMONO-HT/S and Dunetts Syndrome
-                        multiplier = self.randomizedCPTs[i][list_data[3]][DSyndrome] if list_data[i] == 1 else\
-                                     (1 - self.randomizedCPTs[i][list_data[3]][DSyndrome])
-                        weight*= multiplier 
-                    # Foriennditis and Degar Spots
-                    elif i < 3:
-                        # based on the value of Dunetts Syndrome
-                        multiplier = self.randomizedCPTs[i][DSyndrome] if list_data[i] == 1 else\
-                                     (1 - self.randomizedCPTs[i][DSyndrome])
-                        weight*= multiplier 
-                    # TRIMONO-HT/S
-                    elif i == 3:
-                        multiplier = self.randomizedCPTs[i][0] if list_data[i] == 1 else\
-                                    (1 - self.randomizedCPTs[i][0])
-                        weight*= multiplier
-                    # Dunetts Syndrome
-                    else:
-                        multiplier = self.randomizedCPTs[i][DSyndrome] if DSyndrome == 0 or DSyndrome == 1 else\
-                                 (1 - self.randomizedCPTs[i][0] - self.randomizedCPTs[i][1])
-                        weight*= multiplier  
-                
-                for i in xrange(0, len(list_data)):
-                    # Sloepnea
-                    if i == 0:
-                        if list_data[i] == 1:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsPresent[i][list_data[3]], weight, DSyndrome)
-                        else:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsNPresent[i][list_data[3]], weight, DSyndrome)
+            # recompute JP and likelihood table first
+            self.recomputeJPandLikelihoodTable()
+            for data in self.data:
+                if data[-1] == -1:
+                    # splitting the data
+                    for DS in xrange(0,3):
+                        # change the value of DS
+                        data[-1] = DS
+                        strForm = str(data)
+                       
+                        self.sumOfJP+= self.JPandLikelihoodTable[strForm][0]
+                        self.accumulateLikelihood(data, self.JPandLikelihoodTable[strForm][1])
 
-                    # Foriennditis and Degar Spots
-                    elif i < 3:
-                        # based on the value of Dunetts Syndrome
-                        if list_data[i] == 1:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsPresent[i], weight, DSyndrome)
-                        else:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsNPresent[i], weight, DSyndrome)
-                    elif i == 3:
-                        # 0th index indicates presence
-                        # 1st index indicates non presence
-                        if list_data[i] == 1:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, 0)
-                    else:
-                        if DSyndrome == 0 or DSyndrome == 1:
-                            ExpectationMaximizer.updateWeights(self.sumWeightsDSTHTS[i-3], weight, DSyndrome)
-
-                sumOfAllWeights+= weight
-
-            for variable in xrange(0, len(self.randomizedCPTs)):
-                # Sloepnea
-                if variable == 0:
-                    # loop over the domain of TRIMONO-HT/S
-                    for THTS in xrange(0, 2):
-                        # loop over the domain of Dunetts Syndrome
-                        for DS in xrange(0, 3):
-                            weightOfDSTHTS = self.sumWeightsPresent[variable][THTS][DS] + self.sumWeightsNPresent[variable][THTS][DS] 
-                            self.randomizedCPTs[variable][THTS][DS] = self.sumWeightsPresent[variable][THTS][DS]/weightOfDSTHTS
-                # Foriennditis and Degar Spots
-                elif variable < 3:
-                    for DS in xrange(0, 3):
-                        weightOfDS = self.sumWeightsPresent[variable][DS] + self.sumWeightsNPresent[variable][DS]
-
-                        self.randomizedCPTs[variable][DS] = self.sumWeightsPresent[variable][DS]/weightOfDS
-                elif variable == 3:
-                    self.randomizedCPTs[variable][0] = self.sumWeightsDSTHTS[variable-3][0]/sumOfAllWeights
+                    # return it to -1
+                    data[-1] = -1
                 else:
-                    self.randomizedCPTs[variable][0] = self.sumWeightsDSTHTS[variable-3][0]/sumOfAllWeights
-                    self.randomizedCPTs[variable][1] = self.sumWeightsDSTHTS[variable-3][1]/sumOfAllWeights
+                    # DS is observed
+                    self.sumOfJP+= self.JPandLikelihoodTable[str(data)][0]
+                    self.accumulateLikelihood(data, 1)
 
-            if firstTrial:
-                firstTrial = False
-            elif sumOfAllWeights - likelihood <= 0.01:
-                # reset before breaking out
+            # update CPTs
+            # update Sloepnea
+            for THTS in xrange(0,2):
+                for DS in xrange(0,3):
+                    self.randomizedCPTs[0][THTS][DS] = self.sumPresentLikelihood[0][THTS][DS] / self.sumAllLikelihood[0][THTS][DS]
+            
+            # update Foriennditis and Degar Spotes
+            for DS in xrange(0,3):
+                self.randomizedCPTs[1][DS] = self.sumPresentLikelihood[1][DS] / self.sumAllLikelihood[1][DS]
+                self.randomizedCPTs[2][DS] = self.sumPresentLikelihood[2][DS] / self.sumAllLikelihood[2][DS]
+
+            # update THTS
+            self.randomizedCPTs[3][0] = self.sumPresentLikelihood[3][0] / self.sumAllLikelihood[3][0]
+
+            # update DS
+            self.randomizedCPTs[4][0] = self.sumPresentLikelihood[4][0] / self.sumAllLikelihood[4][0]
+            self.randomizedCPTs[4][1] = self.sumPresentLikelihood[4][1] / self.sumAllLikelihood[4][0]
+
+            if likelihood != None and (self.sumOfJP - likelihood) <= 0.01:
+                # reset first
                 self.resetSumWeights()
-                # if change to likelihood is small enough
+                # then break
                 break
 
-            likelihood = sumOfAllWeights
+            likelihood = self.sumOfJP
 
             # reset
             self.resetSumWeights()

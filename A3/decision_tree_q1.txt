@@ -1,64 +1,64 @@
 Weighted Information Gain
 ==========================
-Feature: writes Information Gain: 0.215
-   |________ Present child node feature: graphics PointEstimate: 1 IG: 0.118888826771
-   |________ Not present child node feature: god PointEstimate: 2 IG: 0.109215568062
- Feature: graphics Information Gain: 0.119
-    |________ Present child node feature: archive PointEstimate: 2 IG: 0.0
-    |________ Not present child node feature: image PointEstimate: 1 IG: 0.085767875642
- Feature: god Information Gain: 0.109
-    |________ Present child node feature: use PointEstimate: 1 IG: 0.212290066617
-    |________ Not present child node feature: that PointEstimate: 2 IG: 0.0778348840957
-  Feature: use Information Gain: 0.212
-     |________ Present child node feature: archive PointEstimate: 2 IG: 1.0
-     |________ Not present child node feature: archive PointEstimate: 1 IG: 0.0
-   Feature: archive Information Gain: 1.000
-      |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-      |________ Not present child node feature: archive PointEstimate: 2 IG: 0.0
-  Feature: image Information Gain: 0.086
-     |________ Present child node feature: archive PointEstimate: 2 IG: 0.0
-     |________ Not present child node feature: that PointEstimate: 1 IG: 0.0864686295328
-   Feature: that Information Gain: 0.086
-      |________ Present child node feature: program PointEstimate: 1 IG: 0.0591914776965
-      |________ Not present child node feature: god PointEstimate: 1 IG: 0.108338840478
-    Feature: god Information Gain: 0.108
-       |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-       |________ Not present child node feature: keith PointEstimate: 2 IG: 0.148815931386
-     Feature: keith Information Gain: 0.149
-        |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-        |________ Not present child node feature: who PointEstimate: 2 IG: 0.106888216292
-      Feature: who Information Gain: 0.107
-         |________ Present child node feature: the PointEstimate: 1 IG: 0.468995593589
-         |________ Not present child node feature: have PointEstimate: 2 IG: 0.0828759886993
+Feature: writes Information Gain: 0.215 PointEstimate: 2
+   |________ Present child node feature: graphics PointEstimate: 1 IG: 0.118889
+   |________ Not present child node feature: god PointEstimate: 2 IG: 0.109216
+ Feature: graphics Information Gain: 0.119 PointEstimate: 1
+    |________ Present child node feature: archive PointEstimate: 2 IG: 0.000000
+    |________ Not present child node feature: image PointEstimate: 1 IG: 0.085768
+ Feature: god Information Gain: 0.109 PointEstimate: 2
+    |________ Present child node feature: use PointEstimate: 1 IG: 0.212290
+    |________ Not present child node feature: that PointEstimate: 2 IG: 0.077835
+  Feature: use Information Gain: 0.212 PointEstimate: 1
+     |________ Present child node feature: archive PointEstimate: 2 IG: 1.000000
+     |________ Not present child node feature: archive PointEstimate: 1 IG: 0.000000
+   Feature: archive Information Gain: 1.000 PointEstimate: 2
+      |________ Present child node feature: name PointEstimate: 1 IG: 0.000000
+      |________ Not present child node feature: name PointEstimate: 2 IG: 0.000000
+  Feature: image Information Gain: 0.086 PointEstimate: 1
+     |________ Present child node feature: archive PointEstimate: 2 IG: 0.000000
+     |________ Not present child node feature: that PointEstimate: 1 IG: 0.086469
+   Feature: that Information Gain: 0.086 PointEstimate: 1
+      |________ Present child node feature: program PointEstimate: 1 IG: 0.059191
+      |________ Not present child node feature: god PointEstimate: 1 IG: 0.108339
+    Feature: god Information Gain: 0.108 PointEstimate: 1
+       |________ Present child node feature: archive PointEstimate: 1 IG: 0.000000
+       |________ Not present child node feature: keith PointEstimate: 2 IG: 0.148816
+     Feature: keith Information Gain: 0.149 PointEstimate: 2
+        |________ Present child node feature: archive PointEstimate: 1 IG: 0.000000
+        |________ Not present child node feature: who PointEstimate: 2 IG: 0.106888
+      Feature: who Information Gain: 0.107 PointEstimate: 2
+         |________ Present child node feature: the PointEstimate: 1 IG: 0.468996
+         |________ Not present child node feature: have PointEstimate: 2 IG: 0.082876
 Average Information Gain
 ==========================
-Feature: atheism Information Gain: 0.501
-   |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-   |________ Not present child node feature: evidence PointEstimate: 2 IG: 0.497544401214
- Feature: evidence Information Gain: 0.498
-    |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-    |________ Not present child node feature: moral PointEstimate: 2 IG: 0.493435672627
-  Feature: moral Information Gain: 0.493
-     |________ Present child node feature: archive PointEstimate: 1 IG: 0.0
-     |________ Not present child node feature: islam PointEstimate: 2 IG: 0.488204506471
-   Feature: islam Information Gain: 0.488
-      |________ Present child node feature: version PointEstimate: 1 IG: 0.0
-      |________ Not present child node feature: bible PointEstimate: 2 IG: 0.483126375767
-    Feature: bible Information Gain: 0.483
-       |________ Present child node feature: last PointEstimate: 1 IG: 0.0
-       |________ Not present child node feature: solntze PointEstimate: 2 IG: 0.477652471309
-     Feature: solntze Information Gain: 0.478
-        |________ Present child node feature: name PointEstimate: 1 IG: 0.0
-        |________ Not present child node feature: religion PointEstimate: 2 IG: 0.470132424676
-      Feature: religion Information Gain: 0.470
-         |________ Present child node feature: name PointEstimate: 1 IG: 0.0
-         |________ Not present child node feature: vice PointEstimate: 2 IG: 0.463401826616
-       Feature: vice Information Gain: 0.463
-          |________ Present child node feature: last PointEstimate: 1 IG: 0.0
-          |________ Not present child node feature: umd PointEstimate: 2 IG: 0.457430022803
-        Feature: umd Information Gain: 0.457
-           |________ Present child node feature: last PointEstimate: 1 IG: 0.0
-           |________ Not present child node feature: mathew PointEstimate: 2 IG: 0.450163977478
-         Feature: mathew Information Gain: 0.450
-            |________ Present child node feature: modified PointEstimate: 1 IG: 0.0
-            |________ Not present child node feature: christian PointEstimate: 2 IG: 0.441838430394
+Feature: atheism Information Gain: 0.501 PointEstimate: 2
+   |________ Present child node feature: archive PointEstimate: 1 IG: 0.000000
+   |________ Not present child node feature: evidence PointEstimate: 2 IG: 0.497544
+ Feature: evidence Information Gain: 0.498 PointEstimate: 2
+    |________ Present child node feature: archive PointEstimate: 1 IG: 0.000000
+    |________ Not present child node feature: moral PointEstimate: 2 IG: 0.493436
+  Feature: moral Information Gain: 0.493 PointEstimate: 2
+     |________ Present child node feature: archive PointEstimate: 1 IG: 0.000000
+     |________ Not present child node feature: islam PointEstimate: 2 IG: 0.488205
+   Feature: islam Information Gain: 0.488 PointEstimate: 2
+      |________ Present child node feature: version PointEstimate: 1 IG: 0.000000
+      |________ Not present child node feature: bible PointEstimate: 2 IG: 0.483126
+    Feature: bible Information Gain: 0.483 PointEstimate: 2
+       |________ Present child node feature: last PointEstimate: 1 IG: 0.000000
+       |________ Not present child node feature: solntze PointEstimate: 2 IG: 0.477652
+     Feature: solntze Information Gain: 0.478 PointEstimate: 2
+        |________ Present child node feature: name PointEstimate: 1 IG: 0.000000
+        |________ Not present child node feature: religion PointEstimate: 2 IG: 0.470132
+      Feature: religion Information Gain: 0.470 PointEstimate: 2
+         |________ Present child node feature: name PointEstimate: 1 IG: 0.000000
+         |________ Not present child node feature: vice PointEstimate: 2 IG: 0.463402
+       Feature: vice Information Gain: 0.463 PointEstimate: 2
+          |________ Present child node feature: last PointEstimate: 1 IG: 0.000000
+          |________ Not present child node feature: umd PointEstimate: 2 IG: 0.457430
+        Feature: umd Information Gain: 0.457 PointEstimate: 2
+           |________ Present child node feature: last PointEstimate: 1 IG: 0.000000
+           |________ Not present child node feature: mathew PointEstimate: 2 IG: 0.450164
+         Feature: mathew Information Gain: 0.450 PointEstimate: 2
+            |________ Present child node feature: modified PointEstimate: 1 IG: 0.000000
+            |________ Not present child node feature: christian PointEstimate: 2 IG: 0.441838

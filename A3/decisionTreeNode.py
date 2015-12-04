@@ -12,10 +12,7 @@ class DecisionTreeNode(object):
 
     @staticmethod
     def classProportion(dataset):
-        classIndex = len(dataset[0]) - 1
-        numClass = reduce(lambda x,y: (1 if y[classIndex] == DecisionTreeNode.CLASSALTATHEISM else 0) + x, dataset, 0)
-
-        return numClass
+        return reduce(lambda x,y: (1 if y[-1] == DecisionTreeNode.CLASSALTATHEISM else 0) + x, dataset, 0)
 
     @staticmethod
     def calcInfoContent(dataset):
@@ -96,8 +93,8 @@ class DecisionTreeNode(object):
     # PFeatureNode - the node that is reached when feature is present
     # NPFeatureNode - the node that is reached when feature is not present
     def expand(self, mode):
-        if not self.bestFeatureInfoGain:
-            # 0 or no best feature
+        if self.bestFeatureInfoGain <= 0:
+            # 0 or less then don't expand
             return (None,None)
 
         maxInfoGainP = None
@@ -111,22 +108,15 @@ class DecisionTreeNode(object):
         for feature in self.featureSet:
             for presence in (0,1):
                 if presence == 1:
-                    # check if split is empty if so skip
-                    if not split1:
-                        continue
                     IE = infoContent1
                     splitFeatureP, splitFeatureNP, IE1, IE2 = \
                             DecisionTreeNode.computeSplitsAndIC(split1, feature)
                 else:
-                    # same case here
-                    if not split2:
-                        continue
                     IE = infoContent2
                     splitFeatureP, splitFeatureNP, IE1, IE2 = \
                             DecisionTreeNode.computeSplitsAndIC(split2, feature)
 
                 IEsplit = DecisionTreeNode.computeIESplit(splitFeatureP, splitFeatureNP, IE1, IE2, mode)
-
                 infoGain = IE - IEsplit
                 if presence == 1:
                     if maxInfoGainP is None or infoGain > maxInfoGainP:
@@ -148,10 +138,6 @@ class DecisionTreeNode(object):
     def predict(leafNode, document):
         while True:
             featureAtNode = leafNode.feature
-            if not featureAtNode:
-                # if there was no feature to split on then we break
-                break
-
             if document[featureAtNode] == 1 and leafNode.PFeatureNode:
                 # if feature is present in document and there is a correspoding presence node
                 leafNode = leafNode.PFeatureNode
@@ -159,8 +145,7 @@ class DecisionTreeNode(object):
                 leafNode = leafNode.NPFeatureNode
             else:
                 # none of the conditions above are satisfied
-                break
-        return leafNode.pointEstimate
+                return leafNode.pointEstimate
 
 
     # create a decision tree node
@@ -176,50 +161,35 @@ class DecisionTreeNode(object):
         self.bestFeatureInfoGain = bestFeatureInfoGain
         # remove the own feature from the feature set
         self.featureSet = featureSet.copy()
-        if self.feature:
-            self.featureSet.remove(self.feature)
+        self.featureSet.remove(self.feature)
         # the decision tree node when the feature (selfFeature) is present
         self.PFeatureNode = None
         # the decision tree node when the feature (selfFeature) is not present
         self.NPFeatureNode = None
         # get the majority class of this node
-        numAtheism = 0
-        numGraphics = 0
-        for datapoint in dataset:
-            if datapoint[-1] == DecisionTreeNode.CLASSALTATHEISM:
-                numAtheism+= 1
-            else:
-                numGraphics+= 1
+        numAtheism = reduce(lambda x,y: (1 if y[-1] == DecisionTreeNode.CLASSALTATHEISM else 0) + x, dataset, 0)
         self.pointEstimate = DecisionTreeNode.CLASSALTATHEISM if \
-                                numAtheism > numGraphics else DecisionTreeNode.CLASSCOMPGRAPH
-
+                numAtheism > (len(dataset) - numAtheism) else DecisionTreeNode.CLASSCOMPGRAPH
         self.depth = depth
 
     def printSelf(self, wordsSet):
         for i in xrange(0, self.depth):
             sys.stdout.write(' ')
-        print 'Feature: {} Information Gain: {:.3f}\r'.format(wordsSet[self.feature], self.bestFeatureInfoGain)
-        for i in xrange(0, self.depth + 3):
-            sys.stdout.write(' ')
+        print 'Feature: {!s} Information Gain: {:.3f} PointEstimate: {}\r'.format(\
+                wordsSet[self.feature], self.bestFeatureInfoGain, self.pointEstimate)
         
-        presence = True if self.PFeatureNode.feature is not None else False
-        notPresence = True if self.NPFeatureNode.feature is not None else False
-        
-        print '|________ Present child node feature: {!s} PointEstimate: {} IG: {:}\r'.format(\
-                None if not presence else wordsSet[self.PFeatureNode.feature], \
-                self.PFeatureNode.pointEstimate, self.PFeatureNode.bestFeatureInfoGain)
-        for i in xrange(0, self.depth + 3):
-            sys.stdout.write(' ')
-        print '|________ Not present child node feature: {!s} PointEstimate: {} IG: {:}\r'.format(\
-                None if not notPresence else wordsSet[self.NPFeatureNode.feature], \
-                self.NPFeatureNode.pointEstimate, self.NPFeatureNode.bestFeatureInfoGain)
+        if self.PFeatureNode and self.NPFeatureNode:
+            for i in xrange(0, self.depth + 3):
+                sys.stdout.write(' ')
+            print '|________ Present child node feature: {!s} PointEstimate: {} IG: {:3f}\r'.format(\
+                    wordsSet[self.PFeatureNode.feature], self.PFeatureNode.pointEstimate, self.PFeatureNode.bestFeatureInfoGain)
+            
+            for i in xrange(0, self.depth + 3):
+                sys.stdout.write(' ')
+            print '|________ Not present child node feature: {!s} PointEstimate: {} IG: {:3f}\r'.format(\
+                    wordsSet[self.NPFeatureNode.feature], self.NPFeatureNode.pointEstimate, self.NPFeatureNode.bestFeatureInfoGain)
 
     # comparison method, we reverse the results in order so
     # we can sort the nodes in the form of a max heap
     def __cmp__(self, other):
-        if self.bestFeatureInfoGain < other.bestFeatureInfoGain:
-            return 1
-        elif self.bestFeatureInfoGain == other.bestFeatureInfoGain:
-            return 0
-        else:
-            return -1
+        return -cmp(self.bestFeatureInfoGain,other.bestFeatureInfoGain)

@@ -25,7 +25,7 @@ class DecisionTreeLearner(object):
                         print 'Weighted Information Gain\r'
                     else:
                         print 'Average Information Gain\r'
-                    print '=========================='
+                    print '==========================\r'
 
                 if i <= 9:
                     # print the tree

@@ -47,7 +47,7 @@ def main():
     print 'Mean Before and After EM\r'
     print 'Delta\r'
     for delta in xrange(0, numDeltas):
-        print '{:<5f}, {:3.3f}, {:.3f}\r'.format(delta * (4/numDeltas), meanAccuracyBefore[delta][0],\
+        print '{:<5.2f}, {:3.3f}, {:.3f}\r'.format(delta * (4/numDeltas), meanAccuracyBefore[delta][0],\
                 meanAccuracyAfter[delta][0])
                 
     print '\r\n'

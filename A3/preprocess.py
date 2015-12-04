@@ -19,12 +19,6 @@ def createSparseMatrix(dataFile, labelFile, numFeatures):
             # 0 indexing remember while the ID and features are 1 indexing
             # indicate presence of word/feature
             sparseMatrix[fileID-1][featureNum-1] = 1
-    
-    with open(labelFile, 'r') as f:
-        docId = 0
-        for line in f:
-            sparseMatrix[docId][-1] = int(line)
-            docId+= 1
 
     return sparseMatrix
 

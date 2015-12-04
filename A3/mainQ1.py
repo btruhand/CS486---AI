@@ -47,7 +47,6 @@ def main():
     # as the number of nodes increases/as the tree gets expanded
     correctPredictionsAvgTest = []
     correctPredictionsAvgTrain = []
-
     calculatePredictions(proportionLearning, testMatrix, trainingMatrix, \
                             correctPredictionsProportionTest, correctPredictionsProportionTrain)
     calculatePredictions(avgLearning, testMatrix, trainingMatrix, \
